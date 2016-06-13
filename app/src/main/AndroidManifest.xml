@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest package="com.bbgo.mapsgps"
+          xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Acessar a internet -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Ler o estado da rede -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Utilizada para escrever/ler dados no SD card (cache de mapas) -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- Allows the API to use the Global Positioning System (GPS) to determine the device's location to within a very small area. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- Allows the API to use WiFi or mobile cell data (or both) to determine the device's location. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+
+    <!-- Maps V2 -->
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme">
+
+        <!-- Google Play Services -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+
+        <!--
+
+         Para criar API key de DEBUG
+         1 - Acessar: https://console.developers.google.com
+         2 - Criar projeto
+         3 - Acessar Credentials > Create credentials > Android key saba APIs & auth > APIs e habilitar o serviço Maps Android API v2
+         4 - Criar a chave de acesso para o serviço do Google Maps
+          4.1 - C:\Users\usuario\.android\debug.keystone - certificado digital SHA-1 fingerprint
+                utilizado para testes (instalar aplicativos no emulador ou em um dispositivo)
+          4.2 - Executar o comando keytool na chave
+                keytool está na pasta bin do JDK (Exemplo: C:\Program Files\Java\jdk1.8.0_66\bin)
+                Comando para gerar chave do certificado:
+                "C:\Program Files\Java\jdk1.8.0_66\bin\keytool.exe" -list -v -keystore "C:\Users\usuario\.android\debug.keystore" -alias androiddebugkey -storepass android -keypass android
+                Exemplo de fingerprints do certificado:
+                    SHA1: 74:E6:8F:9D:BD:B9:F6:3D:E8:B7:81:DA:FC:1F:D8:17:3B:84:F4:E5
+        5 - Entrar na página APIs & auth > Credentials e clicar em Add credentials > API > Key > Android Key.
+        6 - Criar API key através do SHA-1 certificate fingerprint -->
+
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="AIzaSyAa4vh03gPaK0NUd5obqpTlSlZ3nULUxxk" />
+
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+
+    </application>
+
+</manifest>

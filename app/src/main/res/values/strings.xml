@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">MyLocationGPS</string>
+    <string name="action_my_location">My Location</string>
+</resources>
