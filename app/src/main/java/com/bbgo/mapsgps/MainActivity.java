@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -34,17 +35,36 @@ import com.google.android.gms.maps.model.LatLng;
  * Encapsula o acesso aos provedores:
  *    - GPS_PROVIDER e NETWORK_PROVIDER aplicando todas as otimizações e boas práticas necessárias
  */
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,com.google.android.gms.location.LocationListener {
     private static final String TAG = "livroandroid";
     protected GoogleMap map;
     private SupportMapFragment mapFragment;
     private GoogleApiClient mGoogleApiClient;
+    //Objeto de monitoramento do android
+    private LocationRequest mLocationRequest;
 
+    private void startLocationUpdates(){
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+    }
+
+    private void stopLocationUpdates(){
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+    }
     @Override
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);
 
         setContentView(R.layout.activity_main);
+
+        mLocationRequest = new LocationRequest();
+        //Intervalo de atualização
+        mLocationRequest.setInterval(10000); //10 segundos
+        //Intervalo mínimo que a aplicação consegue tratar os dados
+        mLocationRequest.setFastestInterval(10000);//5 segundos
+        //Define a precisão do GPS
+        //LocationRequest.PRIORITY_LOW_POWER economiza bateria
+        //LocationRequest.PRIORITY_NO_POWER não inicia o monitoramento mas aproveita o de outra aplicação
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -58,14 +78,16 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Solicita as permissões
         String[] permissoes = new String[]{
-                //Leitura das
+                //Permissões
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                //Obter a localização por Wi-Fi ou triangulação de antenas
                 Manifest.permission.ACCESS_COARSE_LOCATION,
+                //Obter a localização via GPS
                 Manifest.permission.ACCESS_FINE_LOCATION,
         };
         if(PermissionUtils.validate(this, 0, permissoes)){
-            Toast.makeText(this,"Permissão ok!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Permissão ok!", Toast.LENGTH_SHORT).show();
         }else{
             Toast.makeText(this,"Falha permissões!", Toast.LENGTH_SHORT).show();
         }
@@ -108,9 +130,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Configura o tipo do mapa
         map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
-        //Bolinha azul: Exibe a localização do usuário no mapa mas não fornece a localização ao aplicativo
-        map.setMyLocationEnabled(true);
     }
 
     @Override
@@ -128,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
-    public void onConnected(Bundle bundle) {toast("Conectado no Google Play Services!");}
+    public void onConnected(Bundle bundle) {toast("Conectado no Google Play Services!"); startLocationUpdates();}
 
     @Override
     public void onConnectionSuspended(int cause) {toast("Conexão interrompida.");}
@@ -140,6 +159,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stopLocationUpdates();
     }
 
     @Override
@@ -185,5 +210,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     //Facilita toast
     private void toast(String s) {
         Toast.makeText(getBaseContext(), s, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        setMapLocation(location);
     }
 }
